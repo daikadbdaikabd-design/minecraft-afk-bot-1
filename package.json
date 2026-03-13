@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "type": "commonjs",
-  "dependencies": {
-    "mineflayer": "^4.35.0"
-  }
+"dependencies": {
+  "mineflayer": "^4.35.0",
+  "express": "^4.19.2"
 }
