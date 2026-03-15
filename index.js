@@ -1,85 +1,73 @@
-const mineflayer = require("mineflayer")
-const express = require("express")
+const mineflayer = require('mineflayer')
+const express = require('express')
 
-let bot = null
+const app = express()
 
-function startBot() {
+app.get("/", (req,res)=>{
+res.send("Bot running")
+})
 
-  console.log("Đang khởi động bot...")
+app.listen(3000, ()=>{
+console.log("Web server started")
+})
 
-  bot = mineflayer.createBot({
-    host: "darkblademc.falix.dev",
-    port: 31985,
-    username: "MeMayBeo",
-    version: "1.20.1"
-  })
+const host = "darkblademc.falix.dev"
+const port = 31985
+const password = "123456"
 
-  bot.on("login", () => {
-    console.log("Bot đã login server")
-  })
+const botCount = 90
 
-  bot.on("spawn", () => {
+function createBot(id){
 
-    console.log("Bot đã vào world")
+const bot = mineflayer.createBot({
+host: host,
+port: port,
+username: "bot_"+id
+})
 
-    // chống AFK
-    setInterval(() => {
+bot.on("spawn",()=>{
 
-      if (!bot.entity) return
+console.log("bot_"+id+" joined")
 
-      bot.setControlState("jump", true)
+setTimeout(()=>{
+bot.chat(`/register ${password} ${password}`)
+bot.chat(`/login ${password}`)
+},3000)
 
-      setTimeout(() => {
-        bot.setControlState("jump", false)
-      }, 300)
+setInterval(()=>{
+bot.setControlState("jump",true)
 
-    }, 5000)
+setTimeout(()=>{
+bot.setControlState("jump",false)
+},400)
 
-  })
+},5000)
 
-  bot.on("messagestr", (msg) => {
+})
 
-    if (msg.includes("/register")) {
-      bot.chat("/register bot123 bot123")
-    }
+bot.on("end",()=>{
+console.log("bot_"+id+" reconnecting")
 
-    if (msg.includes("/login")) {
-      bot.chat("/login bot123")
-    }
+setTimeout(()=>{
+createBot(id)
+},10000)
 
-  })
+})
 
-  bot.on("kicked", (reason) => {
-    console.log("Bot bị kick:", reason)
-  })
+bot.on("kicked",(reason)=>{
+console.log("bot_"+id+" kicked:",reason)
+})
 
-  bot.on("error", (err) => {
-    console.log("Lỗi:", err.message)
-  })
-
-  bot.on("end", () => {
-
-    console.log("Bot mất kết nối, reconnect sau 30s...")
-
-    setTimeout(() => {
-      startBot()
-    }, 30000)
-
-  })
+bot.on("error",(err)=>{
+console.log("bot_"+id+" error:",err)
+})
 
 }
 
-startBot()
+for(let i=1;i<=botCount;i++){
 
-// web server cho UptimeRobot
-const app = express()
+setTimeout(()=>{
+createBot(i)
+},i*2000)
 
-app.get("/", (req, res) => {
-  res.send("bot online")
-})
-
-const PORT = process.env.PORT || 3000
-
-app.listen(PORT, () => {
-  console.log("Web server chạy port", PORT)
-})
+}
