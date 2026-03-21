@@ -1,7 +1,8 @@
 const mineflayer = require("mineflayer")
 const express = require("express")
 
-let bot = null
+let bot
+let afkInterval
 
 function startBot() {
 
@@ -22,8 +23,10 @@ function startBot() {
 
     console.log("Bot đã vào world")
 
-    // chống AFK
-    setInterval(() => {
+    if (afkInterval) clearInterval(afkInterval)
+
+    // chống AFK (jump mỗi 1s)
+    afkInterval = setInterval(() => {
 
       if (!bot.entity) return
 
@@ -31,13 +34,15 @@ function startBot() {
 
       setTimeout(() => {
         bot.setControlState("jump", false)
-      }, 300)
+      }, 200)
 
-    }, 5000)
+    }, 1000)
 
   })
 
-  bot.on("messagestr", (msg) => {
+  bot.on("message", (jsonMsg) => {
+
+    const msg = jsonMsg.toString()
 
     if (msg.includes("/register")) {
       bot.chat("/register bot123 bot123")
@@ -61,21 +66,22 @@ function startBot() {
 
     console.log("Bot mất kết nối, reconnect sau 30s...")
 
+    if (afkInterval) clearInterval(afkInterval)
+
     setTimeout(() => {
       startBot()
     }, 30000)
 
   })
-
 }
 
 startBot()
 
-// web server cho UptimeRobot
+// web server cho Render / UptimeRobot
 const app = express()
 
 app.get("/", (req, res) => {
-  res.send("bot online")
+  res.send("Bot Minecraft đang chạy")
 })
 
 const PORT = process.env.PORT || 3000
