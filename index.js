@@ -1,73 +1,85 @@
-const mineflayer = require('mineflayer')
-const express = require('express')
+const mineflayer = require("mineflayer")
+const express = require("express")
 
+let bot = null
+
+function startBot() {
+
+  console.log("Đang khởi động bot...")
+
+  bot = mineflayer.createBot({
+    host: "192.168.1.36",
+    port: 25566,
+    username: "Drdount",
+    version: "1.20.1"
+  })
+
+  bot.on("login", () => {
+    console.log("Bot đã login server")
+  })
+
+  bot.on("spawn", () => {
+
+    console.log("Bot đã vào world")
+
+    // chống AFK
+    setInterval(() => {
+
+      if (!bot.entity) return
+
+      bot.setControlState("jump", true)
+
+      setTimeout(() => {
+        bot.setControlState("jump", false)
+      }, 300)
+
+    }, 5000)
+
+  })
+
+  bot.on("messagestr", (msg) => {
+
+    if (msg.includes("/register")) {
+      bot.chat("/register bot123 bot123")
+    }
+
+    if (msg.includes("/login")) {
+      bot.chat("/login bot123")
+    }
+
+  })
+
+  bot.on("kicked", (reason) => {
+    console.log("Bot bị kick:", reason)
+  })
+
+  bot.on("error", (err) => {
+    console.log("Lỗi:", err.message)
+  })
+
+  bot.on("end", () => {
+
+    console.log("Bot mất kết nối, reconnect sau 30s...")
+
+    setTimeout(() => {
+      startBot()
+    }, 30000)
+
+  })
+
+}
+
+startBot()
+
+// web server cho UptimeRobot
 const app = express()
 
-app.get("/", (req,res)=>{
-res.send("Bot running")
+app.get("/", (req, res) => {
+  res.send("bot online")
 })
 
-app.listen(3000, ()=>{
-console.log("Web server started")
+const PORT = process.env.PORT || 3000
+
+app.listen(PORT, () => {
+  console.log("Web server chạy port", PORT)
 })
-
-const host = "darkblademc.falix.dev"
-const port = 31985
-const password = "123456"
-
-const botCount = 90
-
-function createBot(id){
-
-const bot = mineflayer.createBot({
-host: host,
-port: port,
-username: "bot_"+id
-})
-
-bot.on("spawn",()=>{
-
-console.log("bot_"+id+" joined")
-
-setTimeout(()=>{
-bot.chat(`/register ${password} ${password}`)
-bot.chat(`/login ${password}`)
-},3000)
-
-setInterval(()=>{
-bot.setControlState("jump",true)
-
-setTimeout(()=>{
-bot.setControlState("jump",false)
-},400)
-
-},5000)
-
-})
-
-bot.on("end",()=>{
-console.log("bot_"+id+" reconnecting")
-
-setTimeout(()=>{
-createBot(id)
-},10000)
-
-})
-
-bot.on("kicked",(reason)=>{
-console.log("bot_"+id+" kicked:",reason)
-})
-
-bot.on("error",(err)=>{
-console.log("bot_"+id+" error:",err)
-})
-
-}
-
-for(let i=1;i<=botCount;i++){
-
-setTimeout(()=>{
-createBot(i)
-},i*2000)
-
-}
