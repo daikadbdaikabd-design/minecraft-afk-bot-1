@@ -9,7 +9,7 @@ function startBot() {
 
   bot = mineflayer.createBot({
     host: "output-happening.gl.joinmc.link",
-    port: 31985,
+    port: 25566,
     username: "Drdount",
     version: "1.20.1"
   })
