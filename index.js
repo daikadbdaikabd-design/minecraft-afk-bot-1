@@ -11,7 +11,7 @@ function startBot() {
   bot = mineflayer.createBot({
     host: "darkblademc.joinmc.world",
     port: 20674,
-    username: "Drdount",
+    username: "_HuuThien_",
     version: "1.20.1"
   })
 
