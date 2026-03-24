@@ -25,18 +25,31 @@ function startBot() {
 
     if (afkInterval) clearInterval(afkInterval)
 
-    // chống AFK (jump mỗi 1s)
     afkInterval = setInterval(() => {
 
       if (!bot.entity) return
 
+      const actions = ["forward","back","left","right"]
+
+      const action = actions[Math.floor(Math.random() * actions.length)]
+
+      bot.clearControlStates()
+      bot.setControlState(action,true)
+
+      // nhảy
       bot.setControlState("jump", true)
 
       setTimeout(() => {
         bot.setControlState("jump", false)
-      }, 200)
+        bot.clearControlStates()
+      }, 500)
 
-    }, 1000)
+      // xoay đầu random
+      const yaw = Math.random() * Math.PI * 2
+      const pitch = (Math.random() - 0.5) * 0.5
+      bot.look(yaw, pitch, true)
+
+    }, 3000)
 
   })
 
@@ -78,14 +91,14 @@ function startBot() {
 startBot()
 
 // web server cho Render / UptimeRobot
-const app = express()
+const expressApp = express()
 
-app.get("/", (req, res) => {
+expressApp.get("/", (req, res) => {
   res.send("Bot Minecraft đang chạy")
 })
 
 const PORT = process.env.PORT || 3000
 
-app.listen(PORT, () => {
+expressApp.listen(PORT, () => {
   console.log("Web server chạy port", PORT)
 })
