@@ -9,8 +9,8 @@ function startBot() {
   console.log("Đang khởi động bot...")
 
   bot = mineflayer.createBot({
-    host: "15.235.217.54:14317",
-    port: 14317,
+    host: "15.235.215.108",
+    port: 11446,
     username: "afkbot",
     version: "1.20.1"
   })
